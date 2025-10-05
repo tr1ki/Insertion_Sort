@@ -47,11 +47,24 @@ public class InsertionSort {
             return;
         }
 
+        boolean anyShift = false; // track if any element was moved (for early exit)
         for (int unsortedIndex = 1; unsortedIndex < arr.length; unsortedIndex++) {
             // read arr[unsortedIndex]
             if (tracker != null) tracker.incArrayAccesses();
             int valueToInsert = arr[unsortedIndex];
             int sortedIndex = unsortedIndex - 1;
+
+            // Optimization: if the current element is already >= previous, it's already in place
+            if (sortedIndex >= 0) {
+                if (tracker != null) {
+                    tracker.incArrayAccesses(); // read arr[sortedIndex]
+                    tracker.incComparisons();
+                }
+                if (arr[sortedIndex] <= valueToInsert) {
+                    // already in correct position; no shifts or write needed
+                    continue;
+                }
+            }
 
             // Shift larger elements of the sorted prefix to the right
             while (sortedIndex >= 0) {
@@ -64,6 +77,7 @@ public class InsertionSort {
                     // arr[sortedIndex + 1] = arr[sortedIndex]; (one read, one write)
                     if (tracker != null) tracker.incArrayAccesses(2);
                     arr[sortedIndex + 1] = arr[sortedIndex];
+                    anyShift = true;
                     sortedIndex--;
                 } else {
                     break;
@@ -72,7 +86,13 @@ public class InsertionSort {
 
             // Insert the value into its correct position (one write)
             if (tracker != null) tracker.incArrayAccesses();
+            if (sortedIndex + 1 != unsortedIndex) anyShift = true;
             arr[sortedIndex + 1] = valueToInsert;
+        }
+
+        // Early exit if no elements were moved during the pass (array already sorted)
+        if (!anyShift) {
+            return;
         }
     }
 }
