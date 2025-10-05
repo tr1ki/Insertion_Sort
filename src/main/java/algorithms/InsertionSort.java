@@ -1,5 +1,7 @@
 package algorithms;
 
+import metrics.PerformanceTracker;
+
 /**
  * Basic in-place insertion sort implementation for integer arrays.
  * <p>
@@ -28,21 +30,48 @@ public class InsertionSort {
      * @param arr the array to sort; sorted in place if not {@code null}
      */
     public static void sort(int[] arr) {
+        sort(arr, null);
+    }
+
+    /**
+     * Sorts the given array in non-decreasing order using insertion sort and optionally tracks metrics.
+     * <p>
+     * If {@code arr} is {@code null} or has length 0, the method returns immediately.
+     * </p>
+     *
+     * @param arr the array to sort; sorted in place if not {@code null}
+     * @param tracker optional performance tracker; may be {@code null}
+     */
+    public static void sort(int[] arr, PerformanceTracker tracker) {
         if (arr == null || arr.length == 0) {
             return;
         }
 
         for (int unsortedIndex = 1; unsortedIndex < arr.length; unsortedIndex++) {
+            // read arr[unsortedIndex]
+            if (tracker != null) tracker.incArrayAccesses();
             int valueToInsert = arr[unsortedIndex];
             int sortedIndex = unsortedIndex - 1;
 
             // Shift larger elements of the sorted prefix to the right
-            while (sortedIndex >= 0 && arr[sortedIndex] > valueToInsert) {
-                arr[sortedIndex + 1] = arr[sortedIndex];
-                sortedIndex--;
+            while (sortedIndex >= 0) {
+                // compare arr[sortedIndex] with valueToInsert
+                if (tracker != null) {
+                    tracker.incArrayAccesses(); // reading arr[sortedIndex]
+                    tracker.incComparisons();
+                }
+                if (arr[sortedIndex] > valueToInsert) {
+                    // arr[sortedIndex + 1] = arr[sortedIndex]; (one read, one write)
+                    if (tracker != null) tracker.incArrayAccesses(2);
+                    arr[sortedIndex + 1] = arr[sortedIndex];
+                    sortedIndex--;
+                } else {
+                    break;
+                }
             }
 
-            // Insert the value into its correct position
+            // Insert the value into its correct position (one write)
+            if (tracker != null) tracker.incArrayAccesses();
             arr[sortedIndex + 1] = valueToInsert;
         }
     }
