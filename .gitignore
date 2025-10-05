@@ -1,0 +1,13 @@
+# Maven build folder
+/target/
+
+# IntelliJ IDEA project files
+*.iml
+/.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Benchmark results
+benchmark_results.csv
