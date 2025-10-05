@@ -21,6 +21,7 @@ public class PerformanceTracker {
     private long arrayAccesses;
     private long startTimeNs;
     private long elapsedTimeNs;
+    private int inputSize;
 
     /** Starts the timer (in nanoseconds). */
     public void start() {
@@ -39,6 +40,7 @@ public class PerformanceTracker {
         arrayAccesses = 0L;
         startTimeNs = 0L;
         elapsedTimeNs = 0L;
+        inputSize = 0;
     }
 
     /** Increments the comparison counter by one. */
@@ -71,6 +73,12 @@ public class PerformanceTracker {
     /** @return the elapsed time in nanoseconds */
     public long getElapsedTimeNs() { return elapsedTimeNs; }
 
+    /** Sets the input size to be reported in CSV export. */
+    public void setInputSize(int n) { this.inputSize = n; }
+
+    /** @return the input size used for the last run */
+    public int getInputSize() { return inputSize; }
+
     /** Prints a human-readable summary to {@link System#out}. */
     public void printSummary() {
         printSummary(System.out);
@@ -87,6 +95,25 @@ public class PerformanceTracker {
         out.println("  swaps         : " + swaps);
         out.println("  arrayAccesses : " + arrayAccesses);
         out.println("  elapsedTimeNs : " + elapsedTimeNs);
+    }
+
+    /**
+     * Exports current metrics to a CSV file. If the file doesn't exist, a header is written.
+     * The CSV columns are: n,comparisons,swaps,elapsedTimeNs
+     *
+     * @param filename path to the CSV file
+     */
+    public void exportToCSV(String filename) {
+        java.nio.file.Path path = java.nio.file.Paths.get(filename);
+        boolean exists = java.nio.file.Files.exists(path);
+        try (java.io.FileWriter writer = new java.io.FileWriter(path.toFile(), true)) {
+            if (!exists) {
+                writer.write("n,comparisons,swaps,elapsedTimeNs\n");
+            }
+            writer.write(inputSize + "," + comparisons + "," + swaps + "," + elapsedTimeNs + "\n");
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to export metrics to CSV: " + filename, e);
+        }
     }
 }
 

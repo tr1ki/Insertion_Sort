@@ -23,6 +23,7 @@ public class BenchmarkRunner {
             int[] arr = random.ints(size, -1_000_000, 1_000_000).toArray();
 
             tracker.reset();
+            tracker.setInputSize(size);
             tracker.start();
             InsertionSort.sort(arr, tracker);
             tracker.stop();
@@ -32,6 +33,9 @@ public class BenchmarkRunner {
                     tracker.getSwaps() + "," +
                     tracker.getArrayAccesses() + "," +
                     tracker.getElapsedTimeNs());
+
+            // also persist to CSV file
+            tracker.exportToCSV("benchmark_results.csv");
         }
     }
 }
