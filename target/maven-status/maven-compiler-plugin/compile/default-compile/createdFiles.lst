@@ -1,4 +1,3 @@
 cli\BenchmarkRunner.class
-Main.class
 algorithms\InsertionSort.class
 metrics\PerformanceTracker.class
